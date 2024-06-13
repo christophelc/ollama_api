@@ -1,0 +1,6 @@
+https://github.com/nogibjj/rust-mlops-template
+https://github.com/nogibjj/rust-candle-demos
+https://github.com/nogibjj/candle-cookbook
+https://gitlab.com/dukeaiml/rust-for-llmops
+
+https://github.com/noahgift/continuous-integration
