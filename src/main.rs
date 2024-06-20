@@ -13,20 +13,36 @@ struct ChatResponse {
     response: String,
 }
 
-async fn handle_chat(input: ChatInput) -> Result<impl warp::Reply, warp::Rejection> {
-    let messages = vec![ollama_caller::Message {
-        role: "user".to_string(),
-        content: input.message,
-    }];
+async fn handle_chat(
+    input: ChatInput,
+) -> Result<
+    impl warp::Reply,
+    warp::Rejection,
+> {
+    let messages =
+        vec![ollama_caller::Message {
+            role: "user".to_string(),
+            content: input.message,
+        }];
 
-    match ollama_caller::call_ollama(messages).await {
+    match ollama_caller::call_ollama(
+        messages,
+    )
+    .await
+    {
         Ok(response_message) => {
-            let response = ChatResponse {
-                response: response_message,
-            };
-            Ok(warp::reply::json(&response))
+            let response =
+                ChatResponse {
+                    response:
+                        response_message,
+                };
+            Ok(warp::reply::json(
+                &response,
+            ))
         },
-        Err(e) => Err(warp::reject::custom(e)),
+        Err(e) => {
+            Err(warp::reject::custom(e))
+        },
     }
 }
 
@@ -34,20 +50,26 @@ async fn handle_chat(input: ChatInput) -> Result<impl warp::Reply, warp::Rejecti
 async fn main() {
     // GET / -> index.html
     let index_route = warp::path::end()
-        .map(|| warp::reply::html(INDEX_HTML));
-
+        .map(|| {
+            warp::reply::html(
+                INDEX_HTML,
+            )
+        });
 
     // POST /chat -> handle chat messages
     let chat_route = warp::path("chat")
         .and(warp::post())
         .and(warp::body::json())
-        .and_then(handle_chat);        
+        .and_then(handle_chat);
 
     // Combine routes
-    let routes = index_route.or(chat_route);
+    let routes =
+        index_route.or(chat_route);
 
     // Start the server
-    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+    warp::serve(routes)
+        .run(([127, 0, 0, 1], 3030))
+        .await;
 }
 
 static INDEX_HTML: &str = r#"
@@ -85,13 +107,3 @@ static INDEX_HTML: &str = r#"
 </body>
 </html>
 "#;
-/*
-#[tokio::main]
-async fn main() {
-    let rt = Runtime::new().unwrap();
-    match rt.block_on(ollama_caller::call_ollama()) {
-        Ok(_) => println!("Ollama called successfully"),
-        Err(e) => eprintln!("Error calling Ollama: {}", e),
-    }
-}
-*/
